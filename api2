@@ -1,0 +1,28 @@
+from flask import Flask
+import requests
+import uuid
+from m3u8 import parse
+
+app = Flask(__name__)
+
+@app.route('/generate-url')
+def generate_url():
+    # Read and parse the M3U file
+    m3u_url = 'http://example.com/playlist.m3u'
+    m3u_content = requests.get(m3u_url).text
+    m3u = parse(m3u_content)
+
+    # Extract video URLs from the M3U file
+    video_urls = [segment.uri for segment in m3u.segments]
+
+    # Generate a unique URL
+    unique_id = str(uuid.uuid4())
+    unique_url = f'http://example.com/{unique_id}.m3u'
+
+    # Write the unique M3U file
+    with open(f'{unique_id}.m3u', 'w') as f:
+        for url in video_urls:
+            f.write(f'{url}\n')
+
+    # Return the unique URL to the client
+    return unique_url
